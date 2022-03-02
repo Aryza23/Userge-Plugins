@@ -49,7 +49,7 @@ def _generate_zippylink(url):
     with session as ses:
         match = re.match(_REGEX_LINK, url)
         if not match:
-            raise ValueError("Invalid URL: " + str(url))
+            raise ValueError(f"Invalid URL: {str(url)}")
         server, id_ = match.group(1), match.group(2)
         res = ses.get(url)
         res.raise_for_status()

@@ -1,5 +1,6 @@
 """ Chat info, Join and leave chat, tagall and tag admins """
 
+
 # by @Krishna_Singhal
 
 import html
@@ -17,7 +18,7 @@ from userge import userge, Config, Message
 
 LOG = userge.getLogger(__name__)
 
-PATH = Config.DOWN_PATH + "chat_pic.jpg"
+PATH = f'{Config.DOWN_PATH}chat_pic.jpg'
 
 
 def mention_html(user_id, name):
@@ -30,8 +31,7 @@ def mention_html(user_id, name):
     'examples': "{tr}join UserGeOt"})
 async def join_chat(message: Message):
     """ Join chat """
-    replied = message.reply_to_message
-    if replied:
+    if replied := message.reply_to_message:
         text = replied.text
     else:
         text = message.input_str
@@ -62,11 +62,7 @@ async def join_chat(message: Message):
     allow_private=False)
 async def leave_chat(message: Message):
     """ Leave chat """
-    input_str = message.input_str
-    if input_str:
-        text = input_str
-    else:
-        text = message.chat.id
+    text = input_str if (input_str := message.input_str) else message.chat.id
     try:
         await userge.send_message(text, "```Good bye, Cruel World... :-) ```")
         await userge.leave_chat(text)
@@ -135,12 +131,9 @@ async def tagall_(message: Message):
                 u_id = members.user.id
                 u_name = members.user.username or None
                 f_name = (await message.client.get_user_dict(u_id))['fname']
-                if u_name:
-                    text += f"@{u_name} "
-                else:
-                    text += f"[{f_name}](tg://user?id={u_id}) "
+                text += f"@{u_name} " if u_name else f"[{f_name}](tg://user?id={u_id}) "
     except Exception as e:
-        text += " " + str(e)
+        text += f" {str(e)}"
     await message.client.send_message(c_id, text, reply_to_message_id=message_id)
     await message.edit("```Tagged recent Members Successfully...```", del_in=3)
 
@@ -192,18 +185,10 @@ async def tadmins_(message: Message):
             u_id = members.user.id
             u_name = members.user.username or None
             f_name = (await message.client.get_user_dict(u_id))['fname']
-            if status == "administrator":
-                if u_name:
-                    text += f"@{u_name} "
-                else:
-                    text += f"[{f_name}](tg://user?id={u_id}) "
-            elif status == "creator":
-                if u_name:
-                    text += f"@{u_name} "
-                else:
-                    text += f"[{f_name}](tg://user?id={u_id}) "
+            if status in ["administrator", "creator"]:
+                text += f"@{u_name} " if u_name else f"[{f_name}](tg://user?id={u_id}) "
     except Exception as e:
-        text += " " + str(e)
+        text += f" {str(e)}"
     await message.client.send_message(c_id, text, reply_to_message_id=message_id)
     await message.edit("```Admins tagged Successfully...```", del_in=3)
 
@@ -296,12 +281,11 @@ async def view_chat(message: Message):
         else:
             await message.edit("```checking, Wait plox !...```", del_in=3)
             await message.edit("<code>{}</code>".format(chat.description), parse_mode='html')
+    elif not chat.photo:
+        await message.err("```Chat not have photo... ```", del_in=3)
     else:
-        if not chat.photo:
-            await message.err("```Chat not have photo... ```", del_in=3)
-        else:
-            await message.edit("```Checking chat photo, wait plox !...```", del_in=3)
-            await message.client.download_media(chat.photo.big_file_id, file_name=PATH)
-            await message.client.send_photo(message.chat.id, PATH)
-            if os.path.exists(PATH):
-                os.remove(PATH)
+        await message.edit("```Checking chat photo, wait plox !...```", del_in=3)
+        await message.client.download_media(chat.photo.big_file_id, file_name=PATH)
+        await message.client.send_photo(message.chat.id, PATH)
+        if os.path.exists(PATH):
+            os.remove(PATH)

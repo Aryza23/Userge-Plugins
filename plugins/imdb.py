@@ -61,7 +61,7 @@ async def imdb(message: Message):
         await message.edit("Bruh, Plox enter **Valid movie name** kthx")
         return
     if len(des_) > 1024:
-        des_ = des_[:1021] + "..."
+        des_ = f'{des_[:1021]}...'
     if os.path.exists(THUMB_PATH):
         optimize_image(THUMB_PATH)
         await message.client.send_photo(
@@ -100,16 +100,13 @@ def get_movie_details(soup):
     mov_details = []
     inline = soup.get("Genres")
     if inline and len(inline) > 0:
-        for io in inline:
-            mov_details.append(io)
-    tags = soup.get("duration")
-    if tags:
+        mov_details.extend(iter(inline))
+    if tags := soup.get("duration"):
         mov_details.append(tags)
     if mov_details and len(mov_details) > 1:
-        mov_details_text = ' | '.join(mov_details)
+        return ' | '.join(mov_details)
     else:
-        mov_details_text = mov_details[0] if mov_details else ''
-    return mov_details_text
+        return mov_details[0] if mov_details else ''
 
 
 def get_countries_and_languages(soup):

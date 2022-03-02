@@ -130,7 +130,7 @@ async def set_profile_picture(message: Message):
 
     elif (replied and replied.media and (
              replied.video or replied.animation)):
-        VIDEO = Config.DOWN_PATH + "profile_vid.mp4"
+        VIDEO = f'{Config.DOWN_PATH}profile_vid.mp4'
         await userge.download_media(message=replied,
                                     file_name=VIDEO,
                                     progress=progress,
@@ -204,7 +204,7 @@ async def view_profile(message: Message):
         if not user.last_name:
             await message.edit("<code>{}</code>".format(user.first_name), parse_mode='html')
         else:
-            full_name = user.first_name + " " + user.last_name
+            full_name = f'{user.first_name} {user.last_name}'
             await message.edit("<code>{}</code>".format(full_name), parse_mode='html')
     elif '-bio' in message.flags:
         if not bio:
